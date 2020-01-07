@@ -10,34 +10,35 @@ import org.apache.poi.ss.usermodel.Workbook;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.chrono.ChronoLocalDate;
 import java.util.Date;
 
 public class Main {
 
     public static void main(String[] args) throws IOException, ParseException
     {
-
-
         String workFolder = "/home/oriolus/IdeaProjects/work/dns_extract";
-//        String fromFile = "sterlitamak_2020-01-01.zip";
-        String fromFile = "spb_2019-12-25.zip";
 
-        new DayProcessor().process(workFolder, workFolder, FileHelper.sdf.parse("2019-12-24"));
+        String dstFolder = "/home/oriolus/docker_data/dns_data";
+        String archiveFolder = "/home/oriolus/PycharmProjects/dns_pricing_download/data/business";
 
+        LocalDate fromDate = LocalDate.parse("2019-12-25");
+        LocalDate toDate = LocalDate.parse("2020-01-08");
 
-//        String fileLocation = Paths.get(workFolder, fromFile).toString();
-//        String[] fileSplit = fileLocation.split("/");
-//        String[] filenameSplit = fileSplit[fileSplit.length - 1].split("\\.");
-//        String filename = filenameSplit[0];
-//
-//        ExcelZipExtractor extractor = new ExcelZipExtractor();
-//        Workbook excel = extractor.getExcel(fileLocation);
-//
-//        WorkbookParser parser = new WorkbookParser();
-//        Prices prices = parser.parse(ArchiveHelper.getCity(filename), ArchiveHelper.getDate(filename), excel);
-//
-//        new AppendableFileExporter().export(prices, workFolder);
+        for (LocalDate curDate = LocalDate.from(fromDate); curDate.isBefore(toDate); curDate = curDate.plusDays(1)) {
+            new DayProcessor().process(
+                    archiveFolder,
+                    dstFolder,
+                    Date.from(curDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),
+                    true
+            );
+            System.out.println(String.format("%s %s processed", ZonedDateTime.now(), curDate.toString()));
+        }
 
+//        new DayProcessor().process(workFolder, workFolder, FileHelper.sdf.parse("2019-12-23"));
 
     }
 
