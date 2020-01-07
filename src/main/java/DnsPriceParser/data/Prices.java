@@ -6,18 +6,18 @@ import java.time.ZonedDateTime;
 public class Prices {
 
     private String city;
-    private ZonedDateTime ofDate;
+    private Date ofDate;
 
     private List<Shop> shops;
     private List<Item> items;
 
 
-    public Prices(String city, ZonedDateTime ofDate) {
+    public Prices(String city, Date ofDate) {
         this.city = city;
         this.ofDate = ofDate;
     }
 
-    public Prices(String city, ZonedDateTime ofDate, int shopCount) {
+    public Prices(String city, Date ofDate, int shopCount) {
         this.city = city;
         this.ofDate = ofDate;
         this.shops = new ArrayList<Shop>(shopCount);
@@ -44,7 +44,7 @@ public class Prices {
         return city;
     }
 
-    public ZonedDateTime getOfDate() {
+    public Date getOfDate() {
         return ofDate;
     }
 

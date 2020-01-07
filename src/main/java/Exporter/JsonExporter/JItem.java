@@ -1,35 +1,54 @@
-package DnsPriceParser.data;
+package Exporter.JsonExporter;
 
+import java.util.Date;
 import java.util.List;
 
-public class Item {
+public class JItem {
 
-    private String code;
+    private Date date;
+    private String city;
+
     private String category;
+    private String code;
     private String title;
+
     private int price;
     private int bonus;
-
     private List<String> shops;
 
-    public Item(String code, String category, String title, int price, int bonus, List<String> shops) {
-        this.code = code;
+    public JItem() { }
+
+    public JItem(Date date, String city, String category, String code, String title, int price, int bonus, List<String> shops) {
+        this.date = date;
+        this.city = city;
         this.category = category;
+        this.code = code;
         this.title = title;
         this.price = price;
         this.bonus = bonus;
         this.shops = shops;
     }
 
-    public Item(String code, String category, String title, int price, int bonus) {
-        this.code = code;
-        this.category = category;
-        this.title = title;
-        this.price = price;
-        this.bonus = bonus;
+    public JItem(Date date, String city) {
+        this.date = date;
+        this.city = city;
     }
 
-    public Item() { }
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
 
     public String getCategory() {
         return category;
@@ -78,5 +97,4 @@ public class Item {
     public void setShops(List<String> shops) {
         this.shops = shops;
     }
-
 }

@@ -7,9 +7,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.omg.CORBA.UShortSeqHelper;
 
-import java.time.ZonedDateTime;
 import java.util.*;
 
 public class WorkbookParser {
@@ -54,7 +52,7 @@ public class WorkbookParser {
 
     }
 
-    public Prices parse(String city, ZonedDateTime excelDate, Workbook excel) {
+    public Prices parse(String city, Date excelDate, Workbook excel) {
 
         Map<String, Shop> shops = this.getShops(city, excel.getSheetAt(1));
         Prices prices = new Prices(city, excelDate, shops.size());
@@ -131,7 +129,7 @@ public class WorkbookParser {
         return shop;
     }
 
-    private Item parseRow(Row row, String category, int shopCount) {
+    private Item parseRow(Row row, int shopCount) {
         Item item = new Item();
 
         if (row.getCell(0).getCellType() == Cell.CELL_TYPE_NUMERIC) {
@@ -180,7 +178,9 @@ public class WorkbookParser {
                 currentCategory = getCategory(curRow);
                 parsed.getCategories().add(currentCategory);
             } else {
-                parsed.getItems().add(parseRow(curRow, currentCategory, shops.size()));
+                Item item = parseRow(curRow, shops.size());
+                item.setCategory(currentCategory);
+                parsed.getItems().add(item);
             }
         }
 
