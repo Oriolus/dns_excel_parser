@@ -1,6 +1,7 @@
 package Exporter.JsonExporter;
 
 import DnsPriceParser.data.Prices;
+import DnsPriceParser.data.Tree;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
@@ -16,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,32 +61,44 @@ public class AppendableFileExporter {
 
 
     public void export(Prices prices, String destinationFolder) throws IOException {
-
         logger.info(String.format("Start exporting %s, city: %s", FileHelper.sdf.format(prices.getOfDate()), prices.getCity()));
 
         Path shopsFilename = Paths.get(destinationFolder, FileHelper.getShopsFileName(Date.from(prices.getOfDate().toInstant())));
-
-        if (Files.notExists(shopsFilename)) {
-            logger.info(String.format("Day %s. Creating file %s",  FileHelper.sdf.format(prices.getOfDate()), shopsFilename.toString()));
-            FileHelper.createFile(shopsFilename);
-        }
+//        if (Files.notExists(shopsFilename)) {
+//            logger.info(String.format("Day %s. Creating file %s",  FileHelper.sdf.format(prices.getOfDate()), shopsFilename.toString()));
+//            FileHelper.createFile(shopsFilename);
+//        }
 
         List<JShop> shops = prices.getShops().stream().map(i -> JConverter.toJShop(i, prices.getOfDate())).collect(Collectors.toList());
         appendShops(shops, shopsFilename.toString());
         shops = null;
 
         Path itemsFileName = Paths.get(destinationFolder, FileHelper.getItemsFileName(Date.from(prices.getOfDate().toInstant())));
-        if (Files.notExists(itemsFileName)) {
-            logger.info(String.format("Day %s. Creating file %s", FileHelper.sdf.format(prices.getOfDate()), shopsFilename.toString()));
-            FileHelper.createFile(itemsFileName);
-        }
+//        if (Files.notExists(itemsFileName)) {
+//            logger.info(String.format("Day %s. Creating file %s", FileHelper.sdf.format(prices.getOfDate()), shopsFilename.toString()));
+//            FileHelper.createFile(itemsFileName);
+//        }
 
         List<JItem> items = prices.getItems().stream().map(i -> JConverter.toJItem(i, prices.getCity(), prices.getOfDate())).collect(Collectors.toList());
         appendItems(items, itemsFileName.toString());
         items = null;
 
         logger.info(String.format("End exporting %s, city: %s", FileHelper.sdf.format(prices.getOfDate()), prices.getCity()));
-
     }
+
+    public void exportCategory(List<JCategory> categories, Date byDate, String destinationFolder) throws IOException {
+        Path categoryPath = Paths.get(destinationFolder, FileHelper.getCategoriesFilename(byDate));
+        BufferedWriter writer = Files.newBufferedWriter(categoryPath);
+        writer.write(new ObjectMapper().writeValueAsString(categories));
+        writer.close();
+    }
+
+    public void exportCities(List<String> cities, Date byDate, String destinationFolder) throws IOException {
+        Path categoryPath = Paths.get(destinationFolder, FileHelper.getCitiesFilename(byDate));
+        BufferedWriter writer = Files.newBufferedWriter(categoryPath);
+        writer.write(new ObjectMapper().writeValueAsString(cities));
+        writer.close();
+    }
+
 
 }

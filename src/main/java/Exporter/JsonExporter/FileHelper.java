@@ -14,11 +14,19 @@ public class FileHelper {
     private FileHelper() { }
 
     public static String getShopsFileName(Date date) {
-        return String.format("dns_shops_%s.json", FileHelper.sdf.format(date));
+        return String.format("%s_dns_shops.json", FileHelper.sdf.format(date));
     }
 
     public static String getItemsFileName(Date date) {
-        return String.format("dns_items_%s.json", FileHelper.sdf.format(date));
+        return String.format("%s_dns_items.json", FileHelper.sdf.format(date));
+    }
+
+    public static String getCategoriesFilename(Date date) {
+        return String.format("%s_categories.json", FileHelper.sdf.format(date));
+    }
+
+    public static String getCitiesFilename(Date date) {
+        return String.format("%s_cities.json", FileHelper.sdf.format(date));
     }
 
     public static void createFile(Path filename) throws IOException {
@@ -26,18 +34,9 @@ public class FileHelper {
     }
 
     public static void deleteFiles(String fromFolder, Date byDate) throws IOException {
-
-        Path shopFile = Paths.get(fromFolder, getShopsFileName(byDate));
-        if (Files.exists(shopFile)) {
-            Files.delete(shopFile);
-        }
-
-        Path itemFile = Paths.get(fromFolder, getItemsFileName(byDate));
-        if (Files.exists(itemFile)) {
-            Files.delete(itemFile);
-        }
-
+        Files.deleteIfExists(Paths.get(fromFolder, getShopsFileName(byDate)));
+        Files.deleteIfExists(Paths.get(fromFolder, getItemsFileName(byDate)));
+        Files.deleteIfExists(Paths.get(fromFolder, getCategoriesFilename(byDate)));
+        Files.deleteIfExists(Paths.get(fromFolder, getCitiesFilename(byDate)));
     }
-
-
 }
