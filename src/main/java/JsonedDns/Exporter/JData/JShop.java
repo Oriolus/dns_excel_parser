@@ -1,10 +1,20 @@
-package Exporter.JsonExporter;
+package JsonedDns.Exporter.JData;
 
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+
+import java.time.LocalDate;
 
 public class JShop {
 
-    private Date date;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
+    private LocalDate date;
+
     private String city;
     private String address;
     private String schedule;
@@ -13,7 +23,7 @@ public class JShop {
 
     public JShop() { }
 
-    public JShop(Date date, String city, String address, String schedule, String title, String code) {
+    public JShop(LocalDate date, String city, String address, String schedule, String title, String code) {
         this.date = date;
         this.city = city;
         this.address = address;
@@ -22,11 +32,11 @@ public class JShop {
         this.code = code;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

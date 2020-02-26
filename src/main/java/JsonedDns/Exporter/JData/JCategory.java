@@ -1,4 +1,4 @@
-package Exporter.JsonExporter;
+package JsonedDns.Exporter.JData;
 
 public class JCategory {
 

@@ -1,5 +1,7 @@
 package DnsPriceParser.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.IOUtils;
@@ -10,6 +12,8 @@ import java.util.zip.ZipInputStream;
 
 public class ExcelZipExtractor implements ExcelExtractor {
 
+    private static final Logger logger = LogManager.getLogger(ExcelZipExtractor.class);
+
     public ExcelZipExtractor() {
     }
 
@@ -17,8 +21,7 @@ public class ExcelZipExtractor implements ExcelExtractor {
 
         FileInputStream inputArchive = null;
 
-        try
-        {
+        try {
             inputArchive = new FileInputStream(fileLocation);
             ZipInputStream zis = new ZipInputStream(inputArchive);
             ZipEntry entry = zis.getNextEntry();
@@ -26,7 +29,7 @@ public class ExcelZipExtractor implements ExcelExtractor {
             Workbook excelWorkbook = null;
 
             if (entry != null) {
-                byte[] excelBytes = new byte[(int)entry.getSize()];
+                byte[] excelBytes = new byte[(int) entry.getSize()];
                 int bytesRead = 0, bytesReadAll = 0;
 
                 excelBytes = IOUtils.toByteArray(zis);
@@ -38,6 +41,9 @@ public class ExcelZipExtractor implements ExcelExtractor {
             zis.close();
 
             return excelWorkbook;
+        } catch(IndexOutOfBoundsException e) {
+            logger.error(String.format("%s", fileLocation), e);
+            throw e;
         }
         finally {
 

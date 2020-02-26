@@ -1,18 +1,17 @@
-package Exporter.JsonExporter;
+package JsonedDns.Exporter;
 
-import java.io.File;
 import java.text.ParseException;
-import java.util.Date;
+import java.time.LocalDate;
 
 public class FileName {
 
     private String city;
-    private Date date;
+    private LocalDate date;
     private String ext;
 
     public FileName() { }
 
-    public FileName(String city, Date date, String ext) {
+    public FileName(String city, LocalDate date, String ext) {
         this.city = city;
         this.date = date;
         this.ext = ext;
@@ -24,13 +23,13 @@ public class FileName {
 
         return new FileName(
                 citySplit[0],
-                FileHelper.sdf.parse(citySplit[1]),
+                LocalDate.parse(citySplit[1], FileHelper.formatter),
                 extSplit[1]
         );
     }
 
     public String union() {
-        return String.format("%s_%s.%s", this.city, FileHelper.sdf.format(this.date), this.ext);
+        return String.format("%s_%s.%s", this.city, FileHelper.formatter.format(this.date), this.ext);
     }
 
     public String getCity() {
@@ -41,11 +40,11 @@ public class FileName {
         this.city = city;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

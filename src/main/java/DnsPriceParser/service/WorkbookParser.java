@@ -8,11 +8,20 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public class WorkbookParser {
 
-    class ParsedSheet {
+    /* Data example
+    Сеть магазинов «DNS»
+    М1 — ТЦ «Домино», тел. . Режим работы: Пн-Вс с 10:00 до 20:00.  Адрес: г. Брянск, пр-т Станке Димитрова, д. 75, корп. 2 этаж
+    М2 — ТД «Весна», тел. . Режим работы: Пн-Вс с 10:00 до 21:00.  Адрес: г. Брянск, 3 Интернационала, д. 17А
+    М3 — ТД «Стройлон», тел. . Режим работы: Пн-Вс с 09:00 до 20:00.  Адрес: г. Брянск, ул. Бурова, д. 12А
+    М4 — на «Электронике», тел. . Режим работы: Пн-Вс с 10:00 до 21:00.  Адрес: г. Брянск, ул. Красноармейская, 170
+    * */
+
+    static class ParsedSheet {
         private String title;
         private List<String> categories;
         private List<Shop> shops;
@@ -52,12 +61,22 @@ public class WorkbookParser {
 
     }
 
-    public Prices parse(String city, Date excelDate, Workbook excel) {
+    private static final int SHOPS_BEGIN_ROW = 1;
+    private static final int SHOP_DATA_CELL = 0;
+    private static final int FIRST_DATA_SHEET = 1;
+
+    private static final int PRICE_CODE_CELL = 0;
+    private static final int PRICE_TITLE_CELL = 1;
+    private static final int PRICE_SHOPS_FIRST_SHELL = 2;
+    private static final int PRICE_PRICE_OFFSET = 0;
+    private static final int PRICE_BONUS_OFFSET = 1;
+
+    public Prices parse(String city, LocalDate excelDate, Workbook excel) {
 
         Map<String, Shop> shops = this.getShops(city, excel.getSheetAt(1));
         Prices prices = new Prices(city, excelDate, shops.size());
 
-        for (int list = 1; list < excel.getNumberOfSheets(); list++) {
+        for (int list = FIRST_DATA_SHEET; list < excel.getNumberOfSheets(); list++) {
             Sheet currentSheet = excel.getSheetAt(list);
             ParsedSheet sheet = parseSheet(city, currentSheet);
 
@@ -72,15 +91,15 @@ public class WorkbookParser {
     private Map<String, Shop> getShops(String city, Sheet curPage) {
         Map<String, Shop> shops = new HashMap<String, Shop>();
         if (curPage != null) {
-            int row = 1;
+            int row = SHOPS_BEGIN_ROW;
             for
             (
                     Row curRow = curPage.getRow(row);
-                    curRow != null && !"Код".equals(curRow.getCell(0).getStringCellValue());
+                    curRow != null && !"Код".equals(curRow.getCell(SHOP_DATA_CELL).getStringCellValue());
                     row += 1, curRow = curPage.getRow(row)
             )
             {
-                Shop shop = parseShop(curRow.getCell(0).getStringCellValue(), city);
+                Shop shop = parseShop(curRow.getCell(SHOP_DATA_CELL).getStringCellValue(), city);
                 shops.put(shop.getCode(), shop);
             }
 
@@ -119,7 +138,7 @@ public class WorkbookParser {
         }
         shop.setSchedule(scheduleSplit[0].trim());
 
-        // extract addresss
+        // extract address
         String[] addressSplit = unparsedStr.split("Адрес:");
         if (addressSplit.length < 2) {
             throw new IllegalArgumentException("No argument Address in shop string");
@@ -132,23 +151,23 @@ public class WorkbookParser {
     private Item parseRow(Row row, int shopCount) {
         Item item = new Item();
 
-        if (row.getCell(0).getCellType() == Cell.CELL_TYPE_NUMERIC) {
-            item.setCode(String.valueOf((long)row.getCell(0).getNumericCellValue()));
+        if (row.getCell(PRICE_CODE_CELL).getCellType() == Cell.CELL_TYPE_NUMERIC) {
+            item.setCode(String.valueOf((long)row.getCell(PRICE_CODE_CELL).getNumericCellValue()));
         } else {
-            item.setCode(row.getCell(0).getStringCellValue());
+            item.setCode(row.getCell(PRICE_CODE_CELL).getStringCellValue());
         }
-        item.setTitle(row.getCell(1).getStringCellValue());
+        item.setTitle(row.getCell(PRICE_TITLE_CELL).getStringCellValue());
 
         item.setShops(new LinkedList<String>());
-        for (int colIndex = 2; colIndex < 2 + shopCount; colIndex++) {
+        for (int colIndex = PRICE_SHOPS_FIRST_SHELL; colIndex < PRICE_SHOPS_FIRST_SHELL + shopCount; colIndex++) {
             String shopCode = row.getCell(colIndex).getStringCellValue();
             if (!"".equals(shopCode)) {
                 item.getShops().add(shopCode);
             }
         }
 
-        item.setPrice((int)row.getCell((2 + shopCount)).getNumericCellValue());
-        item.setBonus((int)row.getCell((2 + shopCount + 1)).getNumericCellValue());
+        item.setPrice((int)row.getCell((PRICE_SHOPS_FIRST_SHELL + shopCount + PRICE_PRICE_OFFSET)).getNumericCellValue());
+        item.setBonus((int)row.getCell((PRICE_SHOPS_FIRST_SHELL + shopCount + PRICE_BONUS_OFFSET)).getNumericCellValue());
 
         return item;
     }

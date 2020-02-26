@@ -1,11 +1,20 @@
-package Exporter.JsonExporter;
+package JsonedDns.Exporter.JData;
 
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+
+import java.time.LocalDate;
 import java.util.List;
 
 public class JItem {
 
-    private Date date;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
+    private LocalDate date;
     private String city;
 
     private String category;
@@ -18,7 +27,7 @@ public class JItem {
 
     public JItem() { }
 
-    public JItem(Date date, String city, String category, String code, String title, int price, int bonus, List<String> shops) {
+    public JItem(LocalDate date, String city, String category, String code, String title, int price, int bonus, List<String> shops) {
         this.date = date;
         this.city = city;
         this.category = category;
@@ -29,16 +38,16 @@ public class JItem {
         this.shops = shops;
     }
 
-    public JItem(Date date, String city) {
+    public JItem(LocalDate date, String city) {
         this.date = date;
         this.city = city;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

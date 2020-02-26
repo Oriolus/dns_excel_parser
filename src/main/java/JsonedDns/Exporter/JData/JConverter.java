@@ -1,4 +1,4 @@
-package Exporter.JsonExporter;
+package JsonedDns.Exporter.JData;
 
 import DnsPriceParser.data.Item;
 import DnsPriceParser.data.Node;
@@ -6,8 +6,7 @@ import DnsPriceParser.data.Shop;
 import DnsPriceParser.data.Tree;
 import com.sun.istack.internal.NotNull;
 
-import java.time.ZonedDateTime;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -17,7 +16,7 @@ public class JConverter {
 
     private JConverter() { }
 
-    public static JItem toJItem(@NotNull Item from, @NotNull String city, @NotNull Date date) {
+    public static JItem toJItem(@NotNull Item from, @NotNull String city, @NotNull LocalDate date) {
         return new JItem(
                 date,
                 city,
@@ -30,7 +29,7 @@ public class JConverter {
         );
     }
 
-    public static JShop toJShop(@NotNull Shop from, @NotNull Date date) {
+    public static JShop toJShop(@NotNull Shop from, @NotNull LocalDate date) {
         return new JShop(
                 date,
                 from.getCity(),
