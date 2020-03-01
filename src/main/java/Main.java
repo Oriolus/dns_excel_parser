@@ -19,12 +19,9 @@ public class Main {
 //        LocalDate toDate = LocalDate.parse("2019-12-24");
 
         for (LocalDate curr = LocalDate.from(fromDate); curr.isBefore(toDate); curr = curr.plusDays(1L)) {
-            MulticoreDayProcessor.getInstance(6).process(
-                    archiveFolder,
-                    dstFolder,
-                    curr,
-                    true
-            );
+            MulticoreDayProcessor
+                    .getInstance(archiveFolder, dstFolder, 6)
+                    .process(curr, true);
         }
     }
 
@@ -43,7 +40,9 @@ public class Main {
     {
 //        processFiles();
 
-        importJsonToDb();
+//        importJsonToDb();
+
+        (new Aaa()).do_it(1);
 
     }
 

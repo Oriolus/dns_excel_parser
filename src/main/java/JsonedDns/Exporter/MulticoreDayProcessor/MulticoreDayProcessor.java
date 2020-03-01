@@ -2,10 +2,7 @@ package JsonedDns.Exporter.MulticoreDayProcessor;
 
 import DnsPriceParser.data.Prices;
 import DnsPriceParser.data.Tree;
-import JsonedDns.Exporter.AppendableFileExporter;
-import JsonedDns.Exporter.BreakException;
-import JsonedDns.Exporter.DayProcessor;
-import JsonedDns.Exporter.FileHelper;
+import JsonedDns.Exporter.*;
 import JsonedDns.Exporter.JData.JConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,21 +16,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class MulticoreDayProcessor implements DayProcessor {
+public class MulticoreDayProcessor extends FolderDayProcessor {
 
     private static final Logger logger = LogManager.getLogger(MulticoreDayProcessor.class);
 
     private int threadCount;
 
-    private MulticoreDayProcessor() {
-    }
+    private MulticoreDayProcessor() { }
 
-    public MulticoreDayProcessor(int threadCount) {
+    public MulticoreDayProcessor(String archFolder, String dstFolder, int threadCount) {
+        super(archFolder, dstFolder);
         this.threadCount = threadCount;
     }
 
-    public static MulticoreDayProcessor getInstance(int threadCount) {
-        return new MulticoreDayProcessor(threadCount);
+    public static MulticoreDayProcessor getInstance(String archFolder, String dstFolder, int threadCount) {
+        return new MulticoreDayProcessor(archFolder, dstFolder, threadCount);
     }
 
     public int getThreadCount() {
@@ -41,15 +38,15 @@ public class MulticoreDayProcessor implements DayProcessor {
     }
 
     @Override
-    public void process(String archFolder, String dstFolder, LocalDate date, boolean deleteExisting)
+    public void process(LocalDate date, boolean deleteExisting)
             throws IOException, ParseException, BreakException {
         ExecutorService executorService = Executors.newFixedThreadPool(this.getThreadCount());
         logger.info(String.format("Processing date: %s", date));
 
-        List<Path> files = FileHelper.getDayFiles(archFolder, date);
+        List<Path> files = FileHelper.getDayFiles(super.getArchFolder(), date);
 
         if (deleteExisting) {
-            FileHelper.deleteFiles(dstFolder, date);
+            FileHelper.deleteFiles(super.getDstFolder(), date);
         }
 
         Tree categoryTree = new Tree();
@@ -75,16 +72,16 @@ public class MulticoreDayProcessor implements DayProcessor {
                         categoryTree.addCategories(item.getCategory());
                     });
 
-                    fileExporter.exportShops(prices.getShops(), prices.getOfDate(), dstFolder);
-                    fileExporter.exportItems(prices.getItems(), prices.getCity(), prices.getOfDate(), dstFolder);
+                    fileExporter.exportShops(prices.getShops(), prices.getOfDate(), super.getDstFolder());
+                    fileExporter.exportItems(prices.getItems(), prices.getCity(), prices.getOfDate(), super.getDstFolder());
                 } catch (ExecutionException e) {
                     logger.warn(e);
                 }
 
             }
 
-            fileExporter.exportCategory(JConverter.toJCategory(categoryTree), date, dstFolder);
-            fileExporter.exportCities(new ArrayList<>(cities), date, dstFolder);
+            fileExporter.exportCategory(JConverter.toJCategory(categoryTree), date, super.getDstFolder());
+            fileExporter.exportCities(new ArrayList<>(cities), date, super.getDstFolder());
 
         } catch (InterruptedException e) {
             logger.error(String.format("Error processing %s day", date.toString()), e);

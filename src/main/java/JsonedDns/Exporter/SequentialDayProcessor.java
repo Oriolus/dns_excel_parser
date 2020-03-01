@@ -2,36 +2,36 @@ package JsonedDns.Exporter;
 
 import DnsPriceParser.data.Prices;
 import DnsPriceParser.data.Tree;
-import DnsPriceParser.service.ExcelZipExtractor;
 import DnsPriceParser.service.FileParser;
-import DnsPriceParser.service.WorkbookParser;
 import JsonedDns.Exporter.JData.JCategory;
 import JsonedDns.Exporter.JData.JConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-public class SequentialDayProcessor implements DayProcessor{
+public class SequentialDayProcessor extends FolderDayProcessor {
 
     private static final Logger logger = LogManager.getLogger(SequentialDayProcessor.class);
 
+    public SequentialDayProcessor(String archFolder, String dstFolder) {
+        super(archFolder, dstFolder);
+    }
+
     @Override
-    public void process(String archFolder, String dstFolder, LocalDate date, boolean deleteExisting)
+    public void process(LocalDate date, boolean deleteExisting)
             throws IOException, ParseException {
         logger.info(String.format("Processing date: %s", date));
-        List<Path> files = FileHelper.getDayFiles(archFolder, date);
+        List<Path> files = FileHelper.getDayFiles(super.getArchFolder(), date);
 
         if (deleteExisting) {
-            FileHelper.deleteFiles(dstFolder, date);
+            FileHelper.deleteFiles(super.getDstFolder(), date);
         }
 
         Tree categoryTree = new Tree();
@@ -58,15 +58,15 @@ public class SequentialDayProcessor implements DayProcessor{
             }
 
             if (!hasFilesError && prices != null) {
-                fileExporter.exportShops(prices.getShops(), prices.getOfDate(), dstFolder);
-                fileExporter.exportItems(prices.getItems(), prices.getCity(), prices.getOfDate(), dstFolder);
+                fileExporter.exportShops(prices.getShops(), prices.getOfDate(), super.getDstFolder());
+                fileExporter.exportItems(prices.getItems(), prices.getCity(), prices.getOfDate(), super.getDstFolder());
             }
             logger.debug(String.format("Processed %s", path));
         }
 
         List<JCategory> categories = JConverter.toJCategory(categoryTree);
-        fileExporter.exportCategory(categories, date, dstFolder);
-        fileExporter.exportCities(new ArrayList<>(cities), date, dstFolder);
+        fileExporter.exportCategory(categories, date, super.getDstFolder());
+        fileExporter.exportCities(new ArrayList<>(cities), date, super.getDstFolder());
 
         logger.info(String.format("%s files was processed for %s date", files.size(), date));
     }

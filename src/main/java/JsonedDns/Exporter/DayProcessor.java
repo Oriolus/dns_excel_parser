@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public interface DayProcessor {
 
-    void process(String archFolder, String dstFolder, LocalDate date, boolean deleteExisting)
+    void process(LocalDate date, boolean deleteExisting)
             throws IOException, ParseException, BreakException;
 
 }
